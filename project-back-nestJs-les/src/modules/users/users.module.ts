@@ -11,5 +11,6 @@ import {User} from "./models/user.model";
   imports: [
     SequelizeModule.forFeature([User])
   ],
+  exports: [UsersService] // добавил что бы пользываться методами этого модуля в других модулях
 })
 export class UsersModule {}
