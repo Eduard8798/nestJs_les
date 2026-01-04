@@ -39,9 +39,14 @@ export class UsersService {
         })
     }
 
-    async updateUser (email:string,dto:UpdateUserDTO){
-        return this.userRepository.update(dto,{where:{email}})
+    async updateUser (email:string,dto:UpdateUserDTO): Promise<UpdateUserDTO>{
+        await this.userRepository.update(dto,{where:{email}})
+        return dto;
     }
 
+        async deleteUser (email:string){
+            await this.userRepository.destroy({where:{email}})
+            return {message:"return done"}
+        }
 
 }
