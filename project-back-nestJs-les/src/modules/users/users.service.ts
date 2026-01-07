@@ -1,4 +1,4 @@
-import {Injectable} from '@nestjs/common';
+import {Injectable, NotFoundException} from '@nestjs/common';
 import {InjectModel} from "@nestjs/sequelize";
 import {User} from "./models/user.model";
 import * as bcrypt from 'bcrypt';
@@ -11,18 +11,31 @@ export class UsersService {
     constructor(@InjectModel(User) private readonly userRepository: typeof User) {
     }
 
-    async hashPassword(password: string) {
-        return bcrypt.hash(password, 4)
+    async hashPassword(password: string) : Promise<string> {
+       try {
+           return bcrypt.hash(password, 4)
+       }
+       catch (e){
+           throw new Error(e)
+       }
     }
 
-    async findUserByEmail(email: string) {
-        return this.userRepository.findOne({where: {email},
-            include: [{
-                model: Watchlist,   // подтягиваем связь
-                required: false,   // если нет watchlist — не ломается
-            }],
-        })
+    async findUserByEmail(email: string): Promise<User> {
+        const user = await this.userRepository.findOne({
+            where: { email },
+            include: {
+                model: Watchlist,
+                required: false,
+            },
+        });
+
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        return user;
     }
+
 
 
     async createUser(dto: CreateUserDTO): Promise<User> {
@@ -38,15 +51,21 @@ export class UsersService {
 
     }
 
-    async publicUser(email: string) {
-        return this.userRepository.findOne({
-            where: {email},
-            attributes: {exclude: ['password']},
-            include: {
-                model: Watchlist,
-                required: false
+    async publicUser(email: string) : Promise<User> {
+
+            const user = await this.userRepository.findOne({
+                where: {email},
+                attributes: {exclude: ['password']},
+                include: {
+                    model: Watchlist,
+                    required: false
+                }
+            });
+            if (!user){
+                throw new NotFoundException('User not found');
             }
-        })
+        return user;
+
     }
 
     async updateUser(email: string, dto: UpdateUserDTO): Promise<UpdateUserDTO> {
