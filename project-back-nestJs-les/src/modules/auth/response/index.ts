@@ -1,5 +1,6 @@
 import {IsString} from "class-validator";
 import {ApiProperty} from "@nestjs/swagger";
+import {Watchlist} from "../../watchlist/model/watchlist.model";
 
 export class AuthUserResponse {
     @ApiProperty()
@@ -17,6 +18,9 @@ export class AuthUserResponse {
     @ApiProperty()
     @IsString()
     token: string
+
+    @IsString()
+    watchlist?: Watchlist[];
 
 
 }

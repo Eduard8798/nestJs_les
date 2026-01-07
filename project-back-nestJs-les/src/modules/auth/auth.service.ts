@@ -21,22 +21,16 @@ export class AuthService {
         return this.userService.createUser(dto)
     }
 
-    async loginUser(dto: UserLoginDTO): Promise<AuthUserResponse> {
+    async loginUser(dto: UserLoginDTO): Promise<any> {
         const user = await this.userService.findUserByEmail(dto.email)
         if (!user) throw new BadRequestException(AppError.USER_NOT_EXIST)
         const validatePassword = await bcrypt.compare(dto.password, user.password)
         if (!validatePassword) throw new BadRequestException(AppError.WRONG_DATA)
-        const userData = {
-            name: user.firstName,
-            email: user.email
-        }
+        const userData = await this.userService.publicUser(dto.email)
         const token = await this.tokenService.generateJwtToken(userData)
-        const userOne = await this.userService.publicUser(dto.email)
+
         return {
-            firstName: user.firstName,
-            userName: user.userName,
-            email: user.email,
-            token: token
+            user,token
         }
     }
 

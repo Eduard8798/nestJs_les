@@ -8,6 +8,8 @@ import {SequelizeModule} from '@nestjs/sequelize'
 import {User} from "../users/models/user.model";
 import {AuthModule} from "../auth/auth.module";
 import {TokenModule} from "../../token/token.module";
+import {WatchlistModule} from "../watchlist/watchlist.module";
+import {Watchlist} from "../watchlist/model/watchlist.model";
 
 
 @Module({
@@ -19,15 +21,8 @@ import {TokenModule} from "../../token/token.module";
         SequelizeModule.forRootAsync({
             imports: [ConfigModule],
             inject: [ConfigService],
-            useFactory: (configService: ConfigService) => {
+            useFactory: (configService: ConfigService) => ({
 
-                console.log('DB CONFIG:', {
-                    host: configService.get('db_host'),
-                    port: configService.get('db_port'),
-                    database: configService.get('db_name'),
-                    user: configService.get('db_user'),
-                });
-                return{
                 dialect: 'postgres',
                 host: configService.get('db_host'),
                 port: Number(configService.get('db_port')),
@@ -36,13 +31,14 @@ import {TokenModule} from "../../token/token.module";
                 database: configService.get('db_name'),
                 synchronize: true,
                 autoLoadModels: true,
-                models: [User]
-                }
-            }
+                models: [User, Watchlist]
+
+            })
         }),
         UsersModule, // добавить при каждом создании модуля в главный (app.module) модуль
         AuthModule,
         TokenModule,
+        WatchlistModule
     ],
     controllers: [AppController],
     providers: [AppService],
