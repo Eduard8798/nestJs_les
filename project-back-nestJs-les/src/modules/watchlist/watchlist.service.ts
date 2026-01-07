@@ -10,16 +10,26 @@ export class WatchlistService {
     }
 
     async createAsset(user,dto): Promise<CreateAssetResponse> {
-        const watchlist = {
-            user:user.id,
-            name:dto.name,
-            assetId: dto.assetId
+        try {
+            const watchlist = {
+                user:user.id,
+                name:dto.name,
+                assetId: dto.assetId
+            }
+            await  this.watchlistRepository.create(watchlist)
+            return watchlist
         }
-        await  this.watchlistRepository.create(watchlist)
-        return watchlist
+        catch (e){
+            throw new Error(e)
+        }
     }
 
     async deleteAsset (userId:number,assetId:string) {
-        return this.watchlistRepository.destroy({where:{id:assetId,user:userId}})
+       try {
+           return this.watchlistRepository.destroy({where:{id:assetId,user:userId}})
+       }
+       catch (e){
+           throw new Error(e)
+       }
     }
 }
